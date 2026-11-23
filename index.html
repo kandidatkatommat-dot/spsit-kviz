@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="sk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<title>SPŠIT Kvíz</title>
+<style>
+:root{
+  --bg:#0d1829; --panel:#12243d; --line:#294560; --muted:#adbbd0; --text:#f5f8ff;
+  --cyan:#16f2ff; --green:#2af598; --purple:#8969ff;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;touch-action:manipulation}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg) url(bg.png) center/cover no-repeat;color:var(--text);font-family:Calibri,Arial,sans-serif;font-size:2.2vmin}
+.screen{position:fixed;inset:0;display:none;flex-direction:column;padding:3vh 4vw}
+.screen.on{display:flex}
+.brand{font-size:1.9vmin;letter-spacing:.35em;color:var(--cyan);font-weight:700;text-transform:uppercase}
+.brand b{color:var(--muted);font-weight:400}
+.top{display:flex;justify-content:space-between;align-items:center}
+h1{font-family:Arial,sans-serif;font-weight:900;line-height:1.05}
+.accent{color:var(--cyan)}
+.btn{font:700 2.6vmin Arial,sans-serif;color:#06121f;background:linear-gradient(90deg,var(--cyan),var(--green));border:0;border-radius:99px;padding:1.6vmin 4vmin;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--text);border:.3vmin solid var(--line)}
+.btn:active{transform:scale(.97)}
+
+/* intro */
+#intro{justify-content:space-between}
+.hero{display:grid;grid-template-columns:1.25fr 1fr;gap:4vw;align-items:center;flex:1}
+.hero h1{font-size:9vmin;margin:2vh 0}
+.hero p{color:var(--muted);font-size:3vmin;max-width:48ch}
+.hero img{width:100%;border-radius:2vmin;border:.3vmin solid var(--line);box-shadow:0 0 6vmin #16f2ff33}
+.teams-row{display:flex;gap:2vw;margin:3vh 0}
+.tchip{padding:1.2vmin 3vmin;border-radius:99px;font:800 3.2vmin Arial;color:#06121f}
+
+/* rules */
+#rules h1{font-size:6.5vmin;margin:1.5vh 0 3vh}
+.rgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:2vmin;flex:1;align-content:start}
+.card{background:linear-gradient(160deg,#12243dcc,#0d1829cc);border:.25vmin solid var(--line);border-radius:2vmin;padding:2.4vmin 3vmin}
+.card .n{font:900 2vmin Arial;letter-spacing:.3em;color:var(--cyan)}
+.card h3{font:800 3.4vmin Arial;margin:.6vmin 0}
+.card p{color:var(--muted);font-size:2.6vmin;line-height:1.35}
+.card.gold{border-color:#ffd23f88}.card.gold .n{color:#ffd23f}
+.foot{display:flex;justify-content:flex-end;gap:2vw;padding-top:2vh}
+
+/* game */
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw;margin-bottom:2.2vh}
+.score{border-radius:2vmin;padding:1.2vmin 2vmin;background:#0d1829cc;border:.4vmin solid var(--c);display:flex;justify-content:space-between;align-items:center;transition:.2s}
+.score .nm{font:800 3vmin Arial;color:var(--c)}
+.score .pt{font:900 5.2vmin Arial}
+.score.lock{opacity:.35}
+.score.active{background:var(--c);box-shadow:0 0 5vmin var(--c)}
+.score.active .nm,.score.active .pt{color:#06121f}
+.qmeta{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5vh}
+.qno{font:800 2.2vmin Arial;letter-spacing:.3em;color:var(--cyan)}
+.qno.final{color:#ffd23f}
+.timer{height:1.2vmin;background:#294560;border-radius:9px;overflow:hidden;flex:1;margin:0 3vw}
+.timer i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--cyan),var(--green));transform-origin:left}
+.qtext{font:800 5.4vmin/1.15 Arial;margin:1vh 0 3vh}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:2vmin}
+.opt{display:flex;gap:2vmin;align-items:center;background:#12243dd9;border:.35vmin solid var(--line);border-radius:2vmin;padding:2.4vmin 2.6vmin;font:700 3.6vmin Arial;text-align:left;color:var(--text);cursor:pointer;transition:.15s;min-height:12vh}
+.opt .l{flex:none;width:6vmin;height:6vmin;border-radius:1.4vmin;background:var(--line);display:grid;place-items:center;font:900 3.4vmin Arial;color:var(--cyan)}
+.opt.dis{pointer-events:none}
+.opt.ok{background:#2af59833;border-color:var(--green)}.opt.ok .l{background:var(--green);color:#06121f}
+.opt.bad{background:#ff5c7a33;border-color:#ff5c7a}.opt.bad .l{background:#ff5c7a;color:#06121f}
+.opt.fade{opacity:.35}
+.status{margin-top:auto;padding-top:2vh;text-align:center;font:800 3.4vmin Arial;min-height:7vh;color:var(--muted)}
+.status.big{color:var(--text)}
+.buzzers{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6vw}
+.buzz{border:0;border-radius:2.4vmin;padding:2.2vmin;background:var(--c);color:#06121f;font:900 4.4vmin Arial;cursor:pointer;box-shadow:0 .8vmin 0 #0006;transition:.1s}
+.buzz small{display:block;font:700 2vmin Arial;opacity:.7;margin-top:.4vmin}
+.buzz:active{transform:translateY(.6vmin);box-shadow:0 .2vmin 0 #0006}
+.buzz:disabled{opacity:.25;box-shadow:none;cursor:default}
+.explain{margin-top:2vh;padding:2vmin 3vmin;border-left:.8vmin solid var(--cyan);background:#12243dcc;border-radius:0 2vmin 2vmin 0;font-size:2.8vmin;color:var(--muted);display:none}
+.explain.on{display:block}
+.next{align-self:flex-end;margin-top:2vh;display:none}
+.next.on{display:block}
+
+/* flash */
+#flash{position:fixed;inset:0;pointer-events:none;opacity:0;z-index:9}
+#flash.go{animation:fl .6s ease-out}
+@keyframes fl{0%{opacity:.55}100%{opacity:0}}
+
+/* final */
+#end{align-items:center;text-align:center}
+#end h1{font-size:8vmin;margin:1.5vh 0}
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:2.5vw;flex:1;width:100%;padding-bottom:2vh}
+.pod{width:24vw;border-radius:2vmin 2vmin 0 0;padding:2vmin;background:var(--c);color:#06121f;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;animation:rise 1s both}
+.pod .rk{font:900 7vmin Arial}.pod .nm{font:900 4.4vmin Arial}.pod .pt{font:800 3.4vmin Arial}
+@keyframes rise{from{transform:translateY(40vh);opacity:0}to{transform:none;opacity:1}}
+.winner{font:800 3.4vmin Arial;color:var(--muted)}
+.prize{font:700 2.6vmin Arial;color:var(--muted);margin-top:1vh}
+
+/* host */
+#host{position:fixed;right:1vw;bottom:1vh;z-index:20;background:#000d;border:.3vmin solid var(--line);border-radius:2vmin;padding:1.6vmin;display:none;gap:1vmin;flex-direction:column;font-size:2vmin}
+#host.on{display:flex}
+#host div{display:flex;gap:.8vmin;align-items:center}
+#host button{font:700 2vmin Arial;padding:.8vmin 1.6vmin;border-radius:1vmin;border:0;cursor:pointer}
+.fs{position:fixed;right:1vw;top:1vh;z-index:15;background:none;border:0;color:var(--muted);font-size:2.4vmin;cursor:pointer;opacity:.35}
+.pulse{animation:pl 1s infinite}
+@keyframes pl{50%{opacity:.45}}
+</style>
+</head>
+<body>
+<div id="flash"></div>
+<button class="fs" id="fs" title="Celá obrazovka (F)">⛶</button>
+
+<!-- INTRO -->
+<section class="screen on" id="intro">
+  <div class="top"><div class="brand">SPŠIT <b>·</b> Kysucké Nové Mesto</div><div class="brand"><b>Kvíz 2027/2028</b></div></div>
+  <div class="hero">
+    <div>
+      <div class="brand" style="color:var(--green)">Súťaž tímov</div>
+      <h1>Poznáš <span class="accent">našu školu?</span></h1>
+      <p>14 otázok z prezentácie. Tri tímy, jedna tabuľa. Kto je rýchlejší a presnejší?</p>
+      <div class="teams-row" id="introTeams"></div>
+      <button class="btn" id="toRules">Pravidlá ▶</button>
+    </div>
+    <img src="school.jpg" alt="SPŠIT">
+  </div>
+</section>
+
+<!-- RULES -->
+<section class="screen" id="rules">
+  <div class="top"><div class="brand">SPŠIT <b>·</b> Kysucké Nové Mesto</div><div class="brand"><b>Pravidlá</b></div></div>
+  <h1>Ako sa <span class="accent">hrá</span></h1>
+  <div class="rgrid">
+    <div class="card"><div class="n">01</div><h3>3 tímy</h3><p>Červení, Žltí a Zelení. Každý tím má na tabuli svoje tlačidlo.</p></div>
+    <div class="card"><div class="n">02</div><h3>Najprv klikni, potom odpovedaj</h3><p>Otázka sa zobrazí na tabuli. Kto prvý stlačí svoje tlačidlo, odpovedá. Na odpoveď má 10 sekúnd.</p></div>
+    <div class="card"><div class="n">03</div><h3>Body</h3><p>Správna odpoveď: <b style="color:var(--green)">+3 body</b>. Zlá odpoveď: <b style="color:#ff5c7a">−1 bod</b> a o odpoveď sa môžu pokúsiť ostatné tímy (za správnu <b style="color:var(--green)">+2</b>).</p></div>
+    <div class="card"><div class="n">04</div><h3>Žiadne pokusy navyše</h3><p>Tím, ktorý odpovedal zle, už v tej otázke nemôže skúšať znova. Poradí sa rozhodne o jednom tlačidle, nie o hádaní.</p></div>
+    <div class="card"><div class="n">05</div><h3>Rozhodujúca otázka</h3><p>Posledná otázka je finálová a platí <b style="color:#ffd23f">dvojnásobné body</b>. Ešte sa všetko môže zmeniť.</p></div>
+    <div class="card gold"><div class="n">06</div><h3>Odmena pre každého</h3><p>Odmenu dostane každý tím. Víťaz si vyberá ako prvý.</p></div>
+  </div>
+  <div class="foot"><button class="btn ghost" id="backIntro">◀ Späť</button><button class="btn" id="start">Začať kvíz ▶</button></div>
+</section>
+
+<!-- GAME -->
+<section class="screen" id="game">
+  <div class="hud" id="hud"></div>
+  <div class="qmeta"><div class="qno" id="qno"></div><div class="timer"><i id="bar"></i></div><div class="brand"><b id="tcount"></b></div></div>
+  <div class="qtext" id="qtext"></div>
+  <div class="opts" id="opts"></div>
+  <div class="explain" id="explain"></div>
+  <div class="status" id="status"></div>
+  <button class="btn next" id="next">Ďalej ▶</button>
+  <div class="buzzers" id="buzzers"></div>
+</section>
+
+<!-- END -->
+<section class="screen" id="end">
+  <div class="brand">Výsledky</div>
+  <h1 id="endTitle">Víťaz kvízu</h1>
+  <div class="winner" id="endSub"></div>
+  <div class="podium" id="podium"></div>
+  <div class="prize">Odmenu dostane každý tím · Príď na Deň otvorených dverí v SPŠIT</div>
+  <div class="foot"><button class="btn ghost" id="again">Hrať znova</button></div>
+</section>
+
+<div id="host">
+  <b>Hostiteľ (H)</b>
+  <div id="hostTeams"></div>
+  <div><button id="hSkip">Preskočiť otázku</button><button id="hReset">Reset celej hry</button></div>
+</div>
+
+<script src="questions.js"></script>
+<script>
+(() => {
+const $ = id => document.getElementById(id);
+const LS = "spsit-kviz-v1";
+const CFG = { read:1200, buzz:30, answer:10, win:3, steal:2, loss:1 };
+const L = "ABCD";
+let S; // state
+let tick=null, readTO=null;
+
+/* ---------- audio ---------- */
+let ac;
+function beep(f,d=.15,type="sine",v=.15,when=0){
+  try{ ac = ac || new (window.AudioContext||window.webkitAudioContext)();
+    const o=ac.createOscillator(),g=ac.createGain(); o.type=type;o.frequency.value=f;
+    g.gain.value=v; o.connect(g);g.connect(ac.destination);
+    const t=ac.currentTime+when; g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.001,t+d);
+    o.start(t);o.stop(t+d);}catch(e){}
+}
+const sfx = {
+  buzz:()=>{beep(880,.12,"square",.1);beep(1320,.18,"square",.1,.1)},
+  ok:()=>{[523,659,784,1046].forEach((f,i)=>beep(f,.2,"triangle",.18,i*.1))},
+  bad:()=>{beep(220,.25,"sawtooth",.12);beep(150,.4,"sawtooth",.12,.2)},
+  end:()=>{[523,659,784,1046,784,1046,1318].forEach((f,i)=>beep(f,.25,"triangle",.18,i*.14))}
+};
+function flash(color){const f=$("flash");f.style.background=color;f.classList.remove("go");void f.offsetWidth;f.classList.add("go")}
+
+/* ---------- state ---------- */
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a };
+function freshState(){
+  const qs = QUESTIONS.map(q=>{
+    const idx = q.o.map((_,i)=>i), order = q.final? idx : shuffle(idx);
+    return { t:q.t, x:q.x, final:!!q.final, o:order.map(i=>q.o[i]), a:order.indexOf(q.a) };
+  });
+  // finálová otázka vždy posledná
+  qs.sort((a,b)=>a.final-b.final);
+  return { scores:[0,0,0], qi:0, qs, phase:"intro" };
+}
+function save(){ try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){} }
+function load(){ try{const s=JSON.parse(localStorage.getItem(LS)); if(s&&s.qs&&s.qs.length===QUESTIONS.length)return s}catch(e){} return null }
+S = load() || freshState();
+// runtime-only (nie je v saved state)
+let R = { locked:[false,false,false], buzzed:null, tries:0, t0:0, over:false, canBuzz:false };
+
+/* ---------- screens ---------- */
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id)) }
+
+/* ---------- intro / rules ---------- */
+$("introTeams").innerHTML = TEAMS.map(t=>`<span class="tchip" style="background:${t.color}">${t.name}</span>`).join("");
+$("toRules").onclick=()=>{ beep(660,.1); show("rules") };
+$("backIntro").onclick=()=>show("intro");
+$("start").onclick=()=>{ beep(784,.12);beep(1046,.2,"sine",.15,.1); S.phase="game"; S.qi=0; S.scores=[0,0,0]; save(); startQuestion() };
+
+/* ---------- HUD & buzzers ---------- */
+$("hud").innerHTML = TEAMS.map(t=>`<div class="score" id="sc${t.id}" style="--c:${t.color}"><span class="nm">${t.name}</span><span class="pt" id="pt${t.id}">0</span></div>`).join("");
+$("buzzers").innerHTML = TEAMS.map(t=>`<button class="buzz" id="bz${t.id}" style="--c:${t.color}">${t.name}<small>klávesa ${t.key}</small></button>`).join("");
+TEAMS.forEach(t=>$("bz"+t.id).addEventListener("pointerdown",e=>{e.preventDefault();buzz(t.id)}));
+
+function renderHud(){
+  TEAMS.forEach(t=>{
+    $("pt"+t.id).textContent=S.scores[t.id];
+    const el=$("sc"+t.id);
+    el.classList.toggle("active",R.buzzed===t.id&&!R.over);
+    el.classList.toggle("lock",R.locked[t.id]&&R.buzzed!==t.id);
+  });
+}
+function setBuzzers(){
+  TEAMS.forEach(t=>{ $("bz"+t.id).disabled = !(R.canBuzz && !R.locked[t.id] && R.buzzed===null && !R.over) });
+}
+function status(msg,big){ const s=$("status"); s.textContent=msg; s.classList.toggle("big",!!big) }
+function bar(frac){ $("bar").style.transform=`scaleX(${Math.max(0,frac)})` }
+
+/* ---------- question flow ---------- */
+function startQuestion(){
+  clearInterval(tick);clearTimeout(readTO);
+  const q=S.qs[S.qi];
+  R={ locked:[false,false,false], buzzed:null, tries:0, t0:0, over:false, canBuzz:false };
+  show("game");
+  $("qno").textContent = q.final? "FINÁLOVÁ OTÁZKA · DVOJNÁSOBNÉ BODY" : `OTÁZKA ${S.qi+1} / ${S.qs.length}`;
+  $("qno").classList.toggle("final",q.final);
+  $("tcount").textContent="";
+  $("qtext").textContent=q.t;
+  $("opts").innerHTML=q.o.map((o,i)=>`<button class="opt dis" data-i="${i}"><span class="l">${L[i]}</span><span>${o}</span></button>`).join("");
+  $("opts").querySelectorAll(".opt").forEach(b=>b.addEventListener("pointerdown",e=>{e.preventDefault();answer(+b.dataset.i)}));
+  $("explain").classList.remove("on");
+  $("next").classList.remove("on");
+  $("buzzers").style.display="";
+  bar(1); renderHud(); setBuzzers();
+  status("Čítajte otázku…");
+  readTO=setTimeout(()=>{ R.canBuzz=true; R.t0=Date.now(); setBuzzers(); status("KTO PRVÝ STLAČÍ SVOJE TLAČIDLO?",true); beep(660,.1,"triangle");
+    runTimer(CFG.buzz,()=>{ if(R.buzzed===null) reveal(null,"Čas vypršal – nikto neodpovedal.") }); }, CFG.read);
+  save();
+}
+function runTimer(sec,onEnd){
+  clearInterval(tick); const t0=Date.now();
+  tick=setInterval(()=>{
+    const left=sec-(Date.now()-t0)/1000;
+    bar(left/sec); $("tcount").textContent=Math.ceil(Math.max(left,0))+" s";
+    if(left<=0){clearInterval(tick);onEnd()}
+  },100);
+}
+function buzz(id){
+  if(!R.canBuzz||R.over||R.buzzed!==null||R.locked[id]) return;
+  R.buzzed=id; R.canBuzz=false;
+  sfx.buzz(); flash(TEAMS[id].color);
+  $("opts").querySelectorAll(".opt:not(.bad)").forEach(b=>b.classList.remove("dis"));
+  status(`${TEAMS[id].name.toUpperCase()} odpovedajú – vyber odpoveď!`,true);
+  renderHud(); setBuzzers();
+  runTimer(CFG.answer,()=>answer(-1));
+}
+function answer(i){
+  if(R.over||R.buzzed===null) return;
+  clearInterval(tick);
+  const q=S.qs[S.qi], id=R.buzzed, mult=q.final?2:1, first=R.tries===0;
+  R.tries++;
+  if(i===q.a){
+    const pts=(first?CFG.win:CFG.steal)*mult;
+    S.scores[id]+=pts; sfx.ok(); flash("#2af598");
+    reveal(i,`${TEAMS[id].name}: správne! +${pts} ${pts===1?"bod":pts<5?"body":"bodov"}`,id);
+  }else{
+    const pen=CFG.loss*mult;
+    S.scores[id]=Math.max(0,S.scores[id]-pen); sfx.bad(); flash("#ff5c7a");
+    R.locked[id]=true; R.buzzed=null;
+    const others=TEAMS.filter(t=>!R.locked[t.id]);
+    // označ zlú odpoveď
+    if(i>=0){const b=$("opts").querySelector(`[data-i="${i}"]`); b.classList.add("bad","dis","fade")}
+    if(others.length===0){ reveal(null,`${TEAMS[id].name}: nesprávne (−${pen}). Všetky tímy odpadli.`); return }
+    R.canBuzz=true; renderHud(); setBuzzers();
+    $("opts").querySelectorAll(".opt").forEach(b=>b.classList.add("dis"));
+    status(`${TEAMS[id].name}: ${i<0?"čas vypršal":"nesprávne"} (−${pen}). Ostatné tímy – kto prvý?`,true);
+    save();
+    runTimer(CFG.buzz,()=>{ if(R.buzzed===null) reveal(null,"Čas vypršal – nikto neodpovedal.") });
+  }
+}
+function reveal(sel,msg,winner){
+  clearInterval(tick); R.over=true; R.canBuzz=false;
+  const q=S.qs[S.qi];
+  $("opts").querySelectorAll(".opt").forEach(b=>{
+    b.classList.add("dis"); const i=+b.dataset.i;
+    b.classList.remove("fade");
+    if(i===q.a) b.classList.add("ok"); else if(!b.classList.contains("bad")) b.classList.add("fade");
+  });
+  R.buzzed = winner===undefined?null:winner;
+  $("explain").textContent="✔ "+q.x; $("explain").classList.add("on");
+  status(msg,true);
+  renderHud(); setBuzzers();
+  $("buzzers").style.display="none";
+  const last=S.qi===S.qs.length-1;
+  $("next").textContent= last? "Výsledky ▶":"Ďalej ▶"; $("next").classList.add("on");
+  bar(0); $("tcount").textContent="";
+  save();
+}
+function next(){
+  if(!R.over) return;
+  if(S.qi>=S.qs.length-1){ finish(); return }
+  S.qi++; save(); startQuestion();
+}
+$("next").onclick=next;
+
+/* ---------- finish ---------- */
+function finish(){
+  clearInterval(tick);clearTimeout(readTO);
+  S.phase="end"; save(); show("end"); sfx.end();
+  const rank=TEAMS.map(t=>({t,p:S.scores[t.id]})).sort((a,b)=>b.p-a.p);
+  const top=rank[0].p, winners=rank.filter(r=>r.p===top);
+  $("endTitle").innerHTML = winners.length>1? `Remíza! <span class="accent">${winners.map(w=>w.t.name).join(" + ")}</span>` : `Víťaz: <span style="color:${rank[0].t.color}">${rank[0].t.name}</span>`;
+  $("endSub").textContent = winners.length>1? "Rozhodne rozstrel – jedna otázka navyše." : "Gratulujeme! Odmenu dostanú všetky tímy, víťaz si vyberá ako prvý.";
+  const order=[1,0,2], hs=[28,38,20];
+  $("podium").innerHTML = order.map((ix,k)=>{const r=rank[ix];
+    return `<div class="pod" style="--c:${r.t.color};height:${hs[k]}vh;animation-delay:${ix===0?1.6:ix===1?.9:.3}s"><div class="rk">${ix+1}.</div><div class="nm">${r.t.name}</div><div class="pt">${r.p} b.</div></div>`}).join("");
+}
+$("again").onclick=()=>{ S=freshState(); save(); show("intro") };
+
+/* ---------- host & keys ---------- */
+$("hostTeams").innerHTML=TEAMS.map(t=>`<div><span style="color:${t.color};min-width:9ch;font-weight:800">${t.name}</span><button data-t="${t.id}" data-d="-1">−1</button><button data-t="${t.id}" data-d="1">+1</button></div>`).join("");
+$("hostTeams").onclick=e=>{const b=e.target.closest("button");if(!b)return;S.scores[+b.dataset.t]=Math.max(0,S.scores[+b.dataset.t]+ +b.dataset.d);save();renderHud()};
+$("hSkip").onclick=()=>{ if(S.phase==="game"&&!R.over) reveal(null,"Otázka preskočená.") };
+$("hReset").onclick=()=>{ if(confirm("Naozaj resetovať celú hru?")){S=freshState();save();show("intro");$("host").classList.remove("on")} };
+function fs(){ const d=document.documentElement; if(!document.fullscreenElement) (d.requestFullscreen||d.webkitRequestFullscreen||(()=>{})).call(d); else document.exitFullscreen() }
+$("fs").onclick=fs;
+addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if(k==="h"){$("host").classList.toggle("on");return}
+  if(k==="f"){fs();return}
+  if(S.phase==="game"){
+    const t=TEAMS.find(t=>t.key===e.key); if(t){buzz(t.id);return}
+    const ai="abcd".indexOf(k); if(ai>=0&&ai<4&&R.buzzed!==null&&!R.over){answer(ai);return}
+    if(k===" "||k==="enter"){ if(R.over){e.preventDefault();next()} }
+  }
+});
+
+/* ---------- resume ---------- */
+if(S.phase==="game"){ startQuestion() }
+else if(S.phase==="end"){ finish() }
+})();
+</script>
+</body>
+</html>
