@@ -1,10 +1,10 @@
 // Otázky kvízu – čerpané z prezentácie ZŠ 2027/2028.
 // a = index správnej odpovede (0 = A, 1 = B, ...). Posledná otázka je finálová (dvojnásobné body).
 
-// >>> TU DOPLŇ TERMÍN DNA OTVORENÝCH DVERÍ <<<
+// Termín Dňa otvorených dverí
 const DOD = {
-  correct: "DOPLNIŤ DÁTUM",
-  wrong: ["DOPLNIŤ 2", "DOPLNIŤ 3", "DOPLNIŤ 4"],
+  correct: "10. 12. 2026",
+  wrong: ["10. 12. 1933", "30. 2. 2026 (taký deň neexistuje)", "10. 12. 3026"],
 };
 
 const TEAMS = [
@@ -56,7 +56,7 @@ const QUESTIONS = [
   { t: "Kto ti pri zápise pomôže, ak potrebuješ osobitnú podporu?",
     o: ["Školník", "Výchovný poradca", "Vrátnik", "Kuchárka"], a: 1,
     x: "Pri zápise pomáha výchovný poradca školy." },
-  { t: "FINÁLOVÁ OTÁZKA – Kedy bude Deň otvorených dverí na našej škole?",
+  { t: "Kedy bude Deň otvorených dverí na našej škole?",
     o: [DOD.correct, ...DOD.wrong], a: 0, final: true,
     x: "Príď sa pozrieť, vyskúšať si to a vybrať si svoju špecializáciu!" },
 ];

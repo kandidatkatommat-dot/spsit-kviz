@@ -193,7 +193,7 @@ function flash(color){const f=$("flash");f.style.background=color;f.classList.re
 const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a };
 function freshState(){
   const qs = QUESTIONS.map(q=>{
-    const idx = q.o.map((_,i)=>i), order = q.final? idx : shuffle(idx);
+    const idx = q.o.map((_,i)=>i), order = shuffle(idx);
     return { t:q.t, x:q.x, final:!!q.final, o:order.map(i=>q.o[i]), a:order.indexOf(q.a) };
   });
   // finálová otázka vždy posledná
