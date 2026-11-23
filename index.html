@@ -111,7 +111,7 @@ h1{font-family:Arial,sans-serif;font-weight:900;line-height:1.05}
     <div>
       <div class="brand" style="color:var(--green)">Súťaž tímov</div>
       <h1>Poznáš <span class="accent">našu školu?</span></h1>
-      <p>14 otázok z prezentácie. Tri tímy, jedna tabuľa. Kto je rýchlejší a presnejší?</p>
+      <p><span id="nq">15</span> otázok z prezentácie. Tri tímy, jedna tabuľa. Kto je rýchlejší a presnejší?</p>
       <div class="teams-row" id="introTeams"></div>
       <button class="btn" id="toRules">Pravidlá ▶</button>
     </div>
@@ -210,6 +210,7 @@ let R = { locked:[false,false,false], buzzed:null, tries:0, t0:0, over:false, ca
 function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.toggle("on",s.id===id)) }
 
 /* ---------- intro / rules ---------- */
+$("nq").textContent=QUESTIONS.length;
 $("introTeams").innerHTML = TEAMS.map(t=>`<span class="tchip" style="background:${t.color}">${t.name}</span>`).join("");
 $("toRules").onclick=()=>{ beep(660,.1); show("rules") };
 $("backIntro").onclick=()=>show("intro");
